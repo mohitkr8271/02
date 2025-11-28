@@ -9,10 +9,12 @@ load_dotenv()
 
 app = FastAPI(title="Loan Advisor Backend", version="1.0.0")
 
-# CORS middleware
+# CORS --- set to frontend render URL
+FRONTEND_URL = os.getenv("FRONTEND_URL", "*")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[FRONTEND_URL],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -21,9 +23,14 @@ app.add_middleware(
 # Initialize Supabase client
 supabase_url = os.getenv("SUPABASE_URL")
 supabase_key = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
-supabase: Client = create_client(supabase_url, supabase_key) if supabase_url and supabase_key else None
+
+if not supabase_url or not supabase_key:
+    supabase = None
+else:
+    supabase: Client = create_client(supabase_url, supabase_key)
 
 
+# MODELS
 class OTPRequest(BaseModel):
     email: str
     userId: str
@@ -34,44 +41,63 @@ class VerifyOTPRequest(BaseModel):
     otp: str
 
 
+# ROOT ENDPOINT (Fixes "Not Found")
+@app.get("/")
+async def root():
+    return {
+        "status": "ok",
+        "service": "Loan Advisor Backend",
+        "message": "Backend is running on Render!"
+    }
+
+
+# HEALTH CHECK
 @app.get("/health")
 async def health_check():
-    """Health check endpoint for Render"""
     return {"status": "ok", "message": "Backend service is running"}
 
 
+# SEND OTP FUNCTION
 @app.post("/api/send-otp")
 async def send_otp(request: OTPRequest):
-    """Proxy to Supabase edge function for sending OTP"""
     try:
         if not supabase:
             raise HTTPException(status_code=500, detail="Supabase not configured")
-        
+
         response = supabase.functions.invoke(
             "send-otp-email",
-            invoke_options={"body": {"email": request.email, "userId": request.userId}}
+            body={
+                "email": request.email,
+                "userId": request.userId
+            }
         )
         return response
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
+# VERIFY OTP FUNCTION
 @app.post("/api/verify-otp")
 async def verify_otp(request: VerifyOTPRequest):
-    """Proxy to Supabase edge function for verifying OTP"""
     try:
         if not supabase:
             raise HTTPException(status_code=500, detail="Supabase not configured")
-        
+
         response = supabase.functions.invoke(
             "verify-otp",
-            invoke_options={"body": {"userId": request.userId, "otp": request.otp}}
+            body={
+                "userId": request.userId,
+                "otp": request.otp
+            }
         )
         return response
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
+# SERVER STARTUP
 if __name__ == "__main__":
     import uvicorn
     port = int(os.getenv("PORT", 10000))

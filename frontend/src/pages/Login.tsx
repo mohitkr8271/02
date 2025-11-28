@@ -12,6 +12,10 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // NEW 👇 Show/Hide Password State
+  const [showPassword, setShowPassword] = useState(false);
+
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -65,16 +69,27 @@ const Login = () => {
             />
           </div>
 
+          {/* PASSWORD WITH SHOW/HIDE */}
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
+
+            <div className="relative">
+              <Input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+
+              <span
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-2.5 cursor-pointer text-gray-500 text-sm"
+              >
+                {showPassword ? "🙈" : "👁️"}
+              </span>
+            </div>
           </div>
 
           <Button

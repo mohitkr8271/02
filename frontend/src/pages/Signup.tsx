@@ -15,6 +15,11 @@ const Signup = () => {
   const [username, setUsername] = useState("");
   const [consent, setConsent] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  // NEW 👇
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -40,13 +45,12 @@ const Signup = () => {
           data: {
             username,
           },
-          emailRedirectTo: `${window.location.origin}/chatbot`,
+emailRedirectTo: `${window.location.origin}/confirm`,
         },
       });
 
       if (error) throw error;
 
-      // Update profile with consent
       if (data.user) {
         await supabase
           .from("profiles")
@@ -104,37 +108,56 @@ const Signup = () => {
             />
           </div>
 
+          {/* Password with show/hide */}
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              minLength={6}
-            />
+            <div className="relative">
+              <Input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                minLength={6}
+              />
+
+              <span
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-2.5 cursor-pointer text-gray-500 text-sm"
+              >
+                {showPassword ? "🙈" : "👁️"}
+              </span>
+            </div>
           </div>
 
+          {/* Confirm Password with show/hide */}
           <div className="space-y-2">
             <Label htmlFor="confirmPassword">Confirm Password</Label>
-            <Input
-              id="confirmPassword"
-              type="password"
-              placeholder="••••••••"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-              minLength={6}
-            />
+            <div className="relative">
+              <Input
+                id="confirmPassword"
+                type={showConfirmPassword ? "text" : "password"}
+                placeholder="••••••••"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+                minLength={6}
+              />
+
+              <span
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute right-3 top-2.5 cursor-pointer text-gray-500 text-sm"
+              >
+                {showConfirmPassword ? "🙈" : "👁️"}
+              </span>
+            </div>
           </div>
 
           <div className="flex items-start space-x-2">
             <input
               id="consent"
               type="checkbox"
-              required
               checked={consent}
               onChange={(e) => setConsent(e.target.checked)}
               className="mt-1 h-4 w-4 rounded border-border"
