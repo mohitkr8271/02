@@ -1,7 +1,7 @@
 // Placeholder ML API integration functions
 // Replace ML_API_URL with your actual HuggingFace Spaces endpoint
+const ML_API_URL = import.meta.env.VITE_ML_API_URL;
 
-const ML_API_URL = "https://example-ml-api.hf.space/predict";
 
 export interface MLPredictionRequest {
   username?: string;

@@ -1,3 +1,4 @@
+from app.extract import router as extract_router
 import os
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -95,6 +96,8 @@ async def verify_otp(request: VerifyOTPRequest):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+# REGISTER ROUTERS
+app.include_router(extract_router, prefix="/api", tags=["Extraction"])
 
 
 # SERVER STARTUP
