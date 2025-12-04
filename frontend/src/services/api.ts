@@ -1,5 +1,5 @@
   // ML API integration functions
-const ML_API_URL = `${import.meta.env.VITE_BACKEND_URL}/api/inference`;
+const ML_API_URL = `${import.meta.env.VITE_BACKEND_URL}/api/inference/predict`;
 
   /**
    * Send message to Rasa chatbot

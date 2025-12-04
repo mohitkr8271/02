@@ -1,68 +1,55 @@
-import os
-import joblib
 import numpy as np
 from typing import Dict, Any
 
-# Load models and transformers
-# Note: You'll need to place your actual model files in the artifacts directory
-try:
-    # Load your models here
-    # Example:
-    # model = joblib.load('app/ml/artifacts/logistic.pkl')
-    # transformer = joblib.load('app/ml/artifacts/transformer.joblib')
-    pass
-except Exception as e:
-    print(f"Error loading models: {e}")
-
 def predict_model(features: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Make predictions using the loaded model
-    
-    Args:
-        features: Dictionary containing the input features
-        
-    Returns:
-        Dictionary containing prediction results
+    Safe ML prediction with JSON-clean output
     """
+
     try:
-        # Preprocess features
         processed_features = preprocess_features(features)
-        
-        # Make prediction
-        # Replace with actual prediction logic
-        # prediction = model.predict(processed_features)
-        # probability = model.predict_proba(processed_features)[0][1]
-        
-        # For now, return dummy values
+
+        # ------------------------------
+        # Dummy prediction (replace later)
+        eligible = True
+        probability = 0.85
+        # ------------------------------
+
         return {
-            "approved": True,
-            "probability": 0.85,
-            "decision": "Approved",
-            "features_used": list(features.keys())
+            "eligible": bool(eligible),
+            "probability": float(probability),
+            "threshold": 0.5,
+            "shap": {},
+            "explanation_summary": "Dummy prediction output.",
+            "recommendations": ["Maintain good credit history."]
         }
-        
+
     except Exception as e:
-        raise Exception(f"Prediction error: {str(e)}")
+        # If ANY error happens, always return JSON (not HTML)
+        return {
+            "error": True,
+            "message": f"Prediction error: {str(e)}"
+        }
+
 
 def preprocess_features(features: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Preprocess the input features
-    
-    Args:
-        features: Raw input features
-        
-    Returns:
-        Preprocessed features
-    """
-    # Add your preprocessing logic here
-    # This is just a placeholder
-    processed = features.copy()
-    
+    processed = {}
+
+    for key, value in features.items():
+
+        # convert numpy → python native types
+        if isinstance(value, (np.integer, np.int64, np.int32)):
+            value = int(value)
+        if isinstance(value, (np.floating, np.float32, np.float64)):
+            value = float(value)
+
+        processed[key] = value
+
     # Example preprocessing
-    if 'gender' in processed:
-        processed['gender'] = 1 if processed['gender'].lower() == 'male' else 0
-        
-    if 'marital_status' in processed:
-        processed['is_married'] = 1 if processed['marital_status'].lower() == 'married' else 0
-        
+    gender = features.get("gender", "").lower()
+    processed["gender"] = 1 if gender == "male" else 0
+
+    marital = features.get("marital_status", "").lower()
+    processed["is_married"] = 1 if marital == "married" else 0
+
     return processed
