@@ -3,6 +3,7 @@ uvicorn[standard]
 python-dotenv
 supabase
 httpx
+email-validator
 pydantic
 fastapi
 uvicorn
